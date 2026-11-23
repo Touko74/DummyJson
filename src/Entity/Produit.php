@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Entity;
@@ -8,9 +9,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['produit:lire']],
+    denormalizationContext: ['groups' => ['produit:ecrire']],
+)]
 class Produit
 {
     #[ORM\Id]
@@ -18,47 +24,72 @@ class Produit
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
+    // clé naturelle, sans groupe : invisible et jamais écrite par l'API
+    #[ORM\Column(unique: true)]
     private ?int $dummyJsonId = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Positive]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?float $prix = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 0, max: 100)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?float $remise = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 0, max: 5)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?float $note = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?int $stock = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Assert\Length(max: 50)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?string $sku = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?int $quantiteMinimale = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url]
+    #[Assert\Length(max: 255)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?string $miniatureUrl = null;
 
     #[ORM\ManyToOne(inversedBy: 'produits')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?Categorie $categorie = null;
 
     #[ORM\ManyToOne(inversedBy: 'produits')]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private ?Marque $marque = null;
 
     /**
      * @var Collection<int, Tag>
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'produits')]
+    #[Groups(['produit:lire', 'produit:ecrire'])]
     private Collection $tags;
 
     public function __construct()
@@ -124,7 +155,7 @@ class Produit
         return $this->remise;
     }
 
-    public function setRemise(float $remise): static
+    public function setRemise(?float $remise): static
     {
         $this->remise = $remise;
 
