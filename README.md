@@ -4,7 +4,7 @@ Projet du cours « Data, API & plateforme » (Bachelor Développement Web, IIM D
 
 On récupère le catalogue de produits de l'API publique [DummyJSON](https://dummyjson.com/products), on le range dans une base SQLite avec un modèle propre, puis on l'expose avec notre propre API REST.
 
-Auteurs : Cesar Emmanuel Touko Sanama, <nom du binôme>
+Auteurs : Cesar Emmanuel Touko Sanama, Christian Kouate Pemen
 
 ## Stack
 
